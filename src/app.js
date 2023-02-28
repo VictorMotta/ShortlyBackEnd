@@ -5,9 +5,8 @@ import AuthRouter from "./routes/authRouter.js";
 import UrlRouter from "./routes/urlRouter.js";
 import UserRouter from "./routes/userRouter.js";
 import RankingRouter from "./routes/rankingRouter.js";
+import { PORT } from "./constants/constats.js";
 dotenv.config();
-
-const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
