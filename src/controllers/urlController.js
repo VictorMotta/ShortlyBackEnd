@@ -6,7 +6,7 @@ export const getUrlPerId = async (req, res) => {
 
   try {
     const shortenExist = await db.query(
-      `SELECT id,short_url AS "shortUrl", url FROM shorten WHERE short_url=$1`,
+      `SELECT id,short_url AS "shortUrl", url FROM shorten WHERE id=$1`,
       [id]
     );
 
