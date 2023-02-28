@@ -20,11 +20,10 @@ export const getUrlPerId = async (req, res) => {
 
 export const getShortUrlOpen = async (req, res) => {
   const { shortUrl } = req.params;
-
+  const shortUrlExist = res.locals.shortUrlExist;
   try {
-    const shortUrlExist = await db.query(`SELECT * FROM shorten WHERE short_url=$1`, [shortUrl]);
-
     const qtyVisitorsUpdated = Number(shortUrlExist.rows[0].qty_visitors) + 1;
+
     if (shortUrlExist.rowCount == 0) return res.sendStatus(404);
 
     await db.query(`UPDATE shorten SET qty_visitors=$1 WHERE short_url=$2`, [

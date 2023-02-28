@@ -8,12 +8,22 @@ export const verifyIdExist = (req, res, next) => {
   next();
 };
 
-export const verifyShortUrlExist = (req, res, next) => {
+export const verifyShortUrlExist = async (req, res, next) => {
   const { shortUrl } = req.params;
 
   if (!shortUrl) return res.status(404);
 
-  next();
+  try {
+    const verifyExist = await db.query(`SELECT * FROM shorten WHERE short_url=$1`, [shortUrl]);
+
+    if (verifyExist.rowCount == 0) return res.sendStatus(404);
+
+    res.locals.shortUrlExist = verifyExist;
+
+    next();
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
 };
 
 export const verifyShortUrl = async (req, res, next) => {
