@@ -7,3 +7,11 @@ export const verifyIdExist = (req, res, next) => {
 
   next();
 };
+
+export const verifyShortUrlExist = (req, res, next) => {
+  const { shortUrl } = req.params;
+
+  if (!shortUrl) return res.status(404);
+
+  next();
+};

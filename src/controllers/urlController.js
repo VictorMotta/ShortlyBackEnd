@@ -18,6 +18,26 @@ export const getUrlPerId = async (req, res) => {
   }
 };
 
+export const getShortUrlOpen = async (req, res) => {
+  const { shortUrl } = req.params;
+
+  try {
+    const shortUrlExist = await db.query(`SELECT * FROM shorten WHERE short_url=$1`, [shortUrl]);
+
+    const qtyVisitorsUpdated = Number(shortUrlExist.rows[0].qty_visitors) + 1;
+    if (shortUrlExist.rowCount == 0) return res.sendStatus(404);
+
+    await db.query(`UPDATE shorten SET qty_visitors=$1 WHERE short_url=$2`, [
+      qtyVisitorsUpdated,
+      shortUrl,
+    ]);
+
+    return res.redirect(shortUrlExist.rows[0].url);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
 export const postShorten = async (req, res) => {
   const { url } = req.body;
   const tokenInfo = res.locals.tokenInfo;
