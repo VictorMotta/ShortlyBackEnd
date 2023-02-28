@@ -28,7 +28,7 @@ CREATE TABLE public.shorten (
     id integer NOT NULL,
     url text NOT NULL,
     short_url text NOT NULL,
-    qty_visitors bigint NOT NULL,
+    qty_visitors integer DEFAULT 0 NOT NULL,
     user_id integer NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone
