@@ -1,6 +1,23 @@
 import db from "../config/db.js";
 import { nanoid } from "nanoid";
 
+export const getUrlPerId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const shortenExist = await db.query(
+      `SELECT id,short_url AS "shortUrl", url FROM shorten WHERE short_url=$1`,
+      [id]
+    );
+
+    if (shortenExist.rowCount == 0) return res.sendStatus(404);
+
+    return res.send(shortenExist.rows[0]);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
 export const postShorten = async (req, res) => {
   const { url } = req.body;
   const tokenInfo = res.locals.tokenInfo;
