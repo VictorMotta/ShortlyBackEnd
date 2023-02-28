@@ -61,3 +61,15 @@ export const postShorten = async (req, res) => {
     return res.status(501).send(error.message);
   }
 };
+
+export const deleteShorten = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.query(`DELETE FROM shorten WHERE id=$1`, [id]);
+
+    return res.sendStatus(204);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
