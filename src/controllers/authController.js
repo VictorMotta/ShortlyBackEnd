@@ -1,5 +1,7 @@
 import db from "../config/db.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { SECRET } from "../constants/constats.js";
 
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
@@ -14,6 +16,23 @@ export const signUp = async (req, res) => {
     ]);
 
     return res.sendStatus(201);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};
+
+export const signIn = async (req, res) => {
+  const user = res.locals.user;
+  try {
+    const token = await jwt.sign(
+      {
+        email: user.rows[0].email,
+      },
+      SECRET,
+      { expiresIn: "168h" }
+    );
+
+    return res.status(200).json({ token });
   } catch (error) {
     return res.status(500).send(error.message);
   }
