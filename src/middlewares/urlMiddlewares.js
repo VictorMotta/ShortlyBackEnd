@@ -21,15 +21,11 @@ export const verifyShortUrl = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    const user = await db.query("SELECT * FROM users WHERE email=$1", [tokenInfo.email]);
-
-    if (user.rowCount == 0) return res.sendStatus(401);
-
     const urlShorten = await db.query("SELECT * FROM shorten WHERE id=$1", [id]);
 
     if (urlShorten.rowCount == 0) return res.sendStatus(404);
 
-    if (user.rows[0].id != urlShorten.rows[0].user_id) return res.sendStatus(401);
+    if (tokenInfo.id != urlShorten.rows[0].user_id) return res.sendStatus(401);
 
     next();
   } catch (error) {
