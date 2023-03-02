@@ -1,14 +1,17 @@
-import db from "../config/db.js";
 import { nanoid } from "nanoid";
+import {
+  deleteShortenRepository,
+  getShortUrlOpenRepository,
+  getUrlPerIdRepository,
+  getUserByIdRepository,
+  postShortenRepository,
+} from "../repositories/url.repository.js";
 
 export const getUrlPerId = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const shortenExist = await db.query(
-      `SELECT id,short_url AS "shortUrl", url FROM shorten WHERE id=$1`,
-      [id]
-    );
+    const shortenExist = await getUrlPerIdRepository(id);
 
     if (shortenExist.rowCount == 0) return res.sendStatus(404);
 
@@ -26,10 +29,7 @@ export const getShortUrlOpen = async (req, res) => {
 
     if (shortUrlExist.rowCount == 0) return res.sendStatus(404);
 
-    await db.query(`UPDATE shorten SET qty_visitors=$1 WHERE short_url=$2`, [
-      qtyVisitorsUpdated,
-      shortUrl,
-    ]);
+    await getShortUrlOpenRepository(qtyVisitorsUpdated, shortUrl);
 
     return res.redirect(shortUrlExist.rows[0].url);
   } catch (error) {
@@ -42,20 +42,13 @@ export const postShorten = async (req, res) => {
   const tokenInfo = res.locals.tokenInfo;
 
   try {
-    const getUser = await db.query("SELECT * FROM users WHERE email=$1", [tokenInfo.email]);
+    const getUser = await getUserByIdRepository(tokenInfo.email);
     if (getUser.rowCount == 0) return res.sendStatus(401);
     const shortUrl = await nanoid();
 
-    await db.query("INSERT INTO shorten (url, short_url,user_id) VALUES ($1,$2,$3)", [
-      url,
-      shortUrl,
-      getUser.rows[0].id,
-    ]);
+    const insertedNow = await postShortenRepository(url, shortUrl, getUser.rows[0].id);
 
-    const insertedNow = await db.query("SELECT * FROM shorten WHERE short_url=$1", [shortUrl]);
-
-    console.log(insertedNow.rows[0]);
-    return res.status(201).json({ id: insertedNow.rows[0].id, shortUrl });
+    return res.status(201).json(insertedNow.rows[0]);
   } catch (error) {
     return res.status(501).send(error.message);
   }
@@ -65,7 +58,7 @@ export const deleteShorten = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await db.query(`DELETE FROM shorten WHERE id=$1`, [id]);
+    await deleteShortenRepository(id);
 
     return res.sendStatus(204);
   } catch (error) {

@@ -1,7 +1,7 @@
-import db from "../config/db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { SECRET } from "../constants/constats.js";
+import { signInRepository } from "../repositories/auth.repository.js";
 
 export const signUp = async (req, res) => {
   const { name, email, password } = req.body;
@@ -9,11 +9,7 @@ export const signUp = async (req, res) => {
   const passwordEncrypt = await bcrypt.hashSync(password, 10);
 
   try {
-    await db.query(`INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [
-      name,
-      email,
-      passwordEncrypt,
-    ]);
+    await signInRepository(name, email, passwordEncrypt);
 
     return res.sendStatus(201);
   } catch (error) {
@@ -23,6 +19,10 @@ export const signUp = async (req, res) => {
 
 export const signIn = async (req, res) => {
   const user = res.locals.user;
+  delete user.rows[0].password;
+  delete user.rows[0].created_at;
+  delete user.rows[0].updated_at;
+
   try {
     const token = await jwt.sign(
       {
@@ -33,7 +33,7 @@ export const signIn = async (req, res) => {
       { expiresIn: "168h" }
     );
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ ...user.rows[0], token });
   } catch (error) {
     return res.status(500).send(error.message);
   }

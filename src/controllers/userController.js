@@ -1,4 +1,8 @@
-import db from "../config/db.js";
+import {
+  getShortenedUrlsRepository,
+  getUserByIdRepository,
+  visitCountRepository,
+} from "../repositories/user.repository.js";
 
 export const getUserShortens = async (req, res) => {
   const tokenInfo = res.locals.tokenInfo;
@@ -6,18 +10,12 @@ export const getUserShortens = async (req, res) => {
   console.log(tokenInfo.id);
 
   try {
-    const user = await db.query(`SELECT * FROM users WHERE id=$1`, [tokenInfo.id]);
-    const visitCountTotal = await db.query(
-      `SELECT SUM(qty_visitors) FROM shorten WHERE user_id=$1;`,
-      [tokenInfo.id]
-    );
-
-    const shortenedUrls = await db.query(`SELECT * FROM shorten WHERE user_id=$1;`, [tokenInfo.id]);
+    const user = await getUserByIdRepository(tokenInfo.id);
+    const visitCountTotal = await visitCountRepository(tokenInfo.id);
+    const shortenedUrls = await getShortenedUrlsRepository(tokenInfo.id);
 
     if (user.rowCount <= 0 || visitCountTotal.rowCount <= 0 || shortenedUrls.rowCount <= 0)
       return res.sendStatus(404);
-
-    console.log(shortenedUrls.rows);
 
     const body = {
       id: user.rows[0].id,
