@@ -2,20 +2,21 @@ import {
   getShortenedUrlsRepository,
   getUserByIdRepository,
   visitCountRepository,
-} from "../repositories/user.repository.js";
+} from '../repositories/user.repository.js';
 
 export const getUserShortens = async (req, res) => {
   const tokenInfo = res.locals.tokenInfo;
 
-  console.log(tokenInfo.id);
-
   try {
     const user = await getUserByIdRepository(tokenInfo.id);
-    const visitCountTotal = await visitCountRepository(tokenInfo.id);
+    let visitCountTotal = await visitCountRepository(tokenInfo.id);
     const shortenedUrls = await getShortenedUrlsRepository(tokenInfo.id);
 
-    if (user.rowCount <= 0 || visitCountTotal.rowCount <= 0 || shortenedUrls.rowCount <= 0)
-      return res.sendStatus(404);
+    if (user.rowCount <= 0 || visitCountTotal.rowCount <= 0) return res.sendStatus(404);
+
+    if (visitCountTotal.rows[0].sum === null) {
+      visitCountTotal.rows[0].sum = '0';
+    }
 
     const body = {
       id: user.rows[0].id,
@@ -30,6 +31,9 @@ export const getUserShortens = async (req, res) => {
         };
       }),
     };
+
+    console.log(shortenedUrls.rows);
+    console.log(body);
 
     return res.send(body);
   } catch (error) {

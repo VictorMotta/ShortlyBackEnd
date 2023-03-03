@@ -8,7 +8,7 @@ export const userExist = async (req, res, next) => {
     const user = await db.query(`SELECT * FROM users WHERE email=$1`, [email]);
 
     if (user.rowCount > 0) {
-      return res.sendStatus(409);
+      return res.status(409).send("Usuário já existe!");
     }
 
     next();
@@ -24,11 +24,11 @@ export const validateUser = async (req, res, next) => {
     const user = await db.query(`SELECT * FROM users WHERE email=$1`, [email]);
 
     if (user.rowCount == 0) {
-      return res.status(401).send("Usuário não existe!");
+      return res.status(401).send("Email ou Senha incorreta!");
     }
 
     if (!bcrypt.compareSync(password, user.rows[0].password)) {
-      return res.status(401).send("Senha incorreta!");
+      return res.status(401).send("Email ou Senha incorreta!");
     }
 
     res.locals.user = user;
