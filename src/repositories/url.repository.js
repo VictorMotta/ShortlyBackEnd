@@ -1,4 +1,4 @@
-import db from "../config/db.js";
+import db from '../config/db.js';
 
 export const getUrlPerIdRepository = async (id) => {
   return await db.query(`SELECT id,short_url AS "shortUrl", url FROM shorten WHERE id=$1`, [id]);
@@ -12,12 +12,12 @@ export const getShortUrlOpenRepository = async (qtyVisitorsUpdated, shortUrl) =>
 };
 
 export const getUserByIdRepository = async (idUser) => {
-  return await db.query("SELECT * FROM users WHERE email=$1", [idUser]);
+  return await db.query('SELECT * FROM users WHERE email=$1', [idUser]);
 };
 
 export const postShortenRepository = async (url, shortUrl, getUser) => {
   return await db.query(
-    'INSERT INTO shorten (url, short_url,user_id) VALUES ($1,$2,$3) RETURNING id, short_url AS "shortUrl"',
+    'INSERT INTO shorten (url, short_url,user_id) VALUES ($1,$2,$3) RETURNING id, short_url AS "shortUrl", url, qty_visitors AS "visitCount"',
     [url, shortUrl, getUser]
   );
 };

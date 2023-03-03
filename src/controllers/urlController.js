@@ -1,11 +1,11 @@
-import { nanoid } from "nanoid";
+import { nanoid } from 'nanoid';
 import {
   deleteShortenRepository,
   getShortUrlOpenRepository,
   getUrlPerIdRepository,
   getUserByIdRepository,
   postShortenRepository,
-} from "../repositories/url.repository.js";
+} from '../repositories/url.repository.js';
 
 export const getUrlPerId = async (req, res) => {
   const { id } = req.params;
@@ -44,7 +44,7 @@ export const postShorten = async (req, res) => {
   try {
     const getUser = await getUserByIdRepository(tokenInfo.email);
     if (getUser.rowCount == 0) return res.sendStatus(401);
-    const shortUrl = await nanoid();
+    const shortUrl = await nanoid(8);
 
     const insertedNow = await postShortenRepository(url, shortUrl, getUser.rows[0].id);
 
